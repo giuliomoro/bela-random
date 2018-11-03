@@ -22,7 +22,9 @@ PACKAGES=$@
 TMP_DIR=/tmp/pkgs/ # FFS, keep the trailing /, or rsync will create a subfolder /tmp/pkgs/pkgs
 rm -rf $TMP_DIR
 mkdir -p $TMP_DIR
-ssh $BBB_ADDRESS "rm -rf $TMP_DIR && apt-get install --print-uris $PACKAGES" | { grep -o "'.*'" || { echo "No packages to install" >&2; exit 0; }; }  | xargs -I___ wget --directory-prefix $TMP_DIR ___
+cd $TMP_DIR
+# run apt-get install --print-uris on the board. This will return a list of URLs. We then get them with `curl`, copy them to the board and install them.
+ssh $BBB_ADDRESS "rm -rf $TMP_DIR && apt-get install --print-uris $PACKAGES" | { grep -o "'.*'" || { echo "No packages to install" >&2; exit 0; }; }  | xargs -I___ curl -LO ___
 ls $TMP_DIR/* 2>/dev/null || exit 0
 rsync -a $TMP_DIR $BBB_ADDRESS:$TMP_DIR
 ssh $BBB_ADDRESS "dpkg -i $TMP_DIR/*"
