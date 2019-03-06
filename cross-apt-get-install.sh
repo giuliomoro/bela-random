@@ -66,7 +66,7 @@ then
 					echo Retrying: $newurl
 					curl -s -w '%{filename_effective} %{url_effective} %{http_code}\n' -LO $newurl > $ONE_LINE_LOG
 					cat $ONE_LINE_LOG | grep " 404" || { echo SUCCESS; break; }
-					oldfile=`echo $line | cut -d" " -f 1`
+					oldfile=`cat $ONE_LINE_LOG | cut -d" " -f 1`
 					rm -rf $oldfile
 					ATTEMPTS=$(( ATTEMPTS + 1 ))
 				done
